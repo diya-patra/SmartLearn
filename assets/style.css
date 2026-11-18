@@ -1,0 +1,1197 @@
+
+/* =========================================================
+   SMARTLEARN - GLOBAL DESIGN SYSTEM
+   Theme: Premium Dark + Gold
+========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+    --gold: #ffca42;
+    --gold-light: #ffd65b;
+    --gold-hover: #ffe08a;
+
+    --black: #080706;
+    --dark: #100b08;
+    --dark-card: #17120e;
+    --dark-sidebar: #17120e;
+
+    --white: #ffffff;
+    --muted: #c9bda9;
+
+    --gold-border: rgba(255, 202, 66, 0.25);
+}
+
+/* =========================================================
+   GLOBAL RESET
+========================================================= */
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body,
+[data-testid="stAppViewContainer"] {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100%;
+    min-height: 100%;
+    background: var(--black) !important;
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+body,
+button,
+input,
+textarea,
+select {
+    font-family: 'DM Sans', sans-serif !important;
+}
+
+[data-testid="stApp"] {
+    background: var(--black) !important;
+}
+
+[data-testid="stMain"] {
+    background: transparent !important;
+}
+
+[data-testid="stHeader"],
+[data-testid="stToolbar"],
+[data-testid="stDecoration"],
+footer,
+#MainMenu {
+    display: none !important;
+}
+
+/* Main content container */
+
+[data-testid="stMainBlockContainer"],
+.block-container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* General text */
+
+[data-testid="stMain"] p {
+    color: #eee7dd;
+}
+
+[data-testid="stMain"] h1,
+[data-testid="stMain"] h2,
+[data-testid="stMain"] h3,
+[data-testid="stMain"] h4 {
+    color: var(--white);
+}
+
+/* =========================================================
+   HOMEPAGE
+========================================================= */
+
+.smartlearn-page {
+    position: relative;
+    min-height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    color: var(--white);
+    background: var(--dark);
+}
+
+/* Homepage hero background image */
+
+.smartlearn-hero {
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    height: 100vh;
+
+    display: flex;
+    flex-direction: column;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.72) 0%,
+            rgba(0, 0, 0, 0.45) 45%,
+            rgba(0, 0, 0, 0.18) 100%
+        ),
+        var(--hero-image);
+
+    background-size: cover, cover;
+    background-position: center center, center center;
+    background-repeat: no-repeat, no-repeat;
+
+    overflow: hidden;
+}
+
+/* =========================================================
+   HOMEPAGE NAVIGATION BAR
+========================================================= */
+
+.smartlearn-navbar {
+    width: 100%;
+    min-height: 112px;
+
+    padding: 22px 4.8%;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    position: relative;
+    z-index: 5;
+}
+
+/* SmartLearn logo */
+
+.smartlearn-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    color: var(--white);
+    text-decoration: none;
+
+    font-size: 37px;
+    font-weight: 800;
+    letter-spacing: -1.5px;
+
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.smartlearn-brand span {
+    color: var(--gold);
+}
+
+.brand-icon {
+    width: 74px;
+    height: 62px;
+    flex-shrink: 0;
+}
+
+/* Navigation links */
+
+.smartlearn-navlinks {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: clamp(14px, 2.1vw, 35px);
+
+    flex-wrap: wrap;
+}
+
+.smartlearn-navlinks a {
+    color: var(--white);
+    text-decoration: none;
+
+    font-size: clamp(14px, 1.15vw, 19px);
+    font-weight: 600;
+
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.smartlearn-navlinks a:hover {
+    color: var(--gold);
+}
+
+.smartlearn-navlinks a.active {
+    color: var(--gold);
+
+    border: 2px solid var(--gold);
+    border-radius: 40px;
+
+    padding: 12px 27px;
+}
+
+/* Login navigation button */
+
+.smartlearn-navlinks .login-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 11px;
+
+    background: var(--gold);
+    color: var(--black) !important;
+
+    padding: 15px 25px;
+    border-radius: 40px;
+
+    font-weight: 800 !important;
+    text-decoration: none;
+
+    transition: all 0.2s ease;
+}
+
+.smartlearn-navlinks .login-link:hover {
+    background: var(--gold-hover);
+    color: var(--black) !important;
+    transform: translateY(-2px);
+}
+
+/* =========================================================
+   HOMEPAGE HERO CONTENT
+========================================================= */
+
+.smartlearn-content {
+    position: relative;
+    z-index: 2;
+
+    width: 56%;
+
+    padding-left: 5.4%;
+    padding-top: clamp(30px, 1vh, 40px);
+    padding-bottom: 180px;
+}
+
+.smartlearn-title {
+    margin: 0 0 8px 0;
+
+    color: var(--white);
+
+    font-size: clamp(65px, 7.5vw, 125px);
+    line-height: 0.98;
+
+    letter-spacing: -5px;
+    font-weight: 800;
+}
+
+.smartlearn-title span {
+    color: var(--gold);
+}
+
+.smartlearn-tagline {
+    margin: 0;
+
+    font-size: clamp(36px, 4.6vw, 76px);
+    line-height: 1.08;
+
+    font-weight: 800;
+    letter-spacing: -2.5px;
+
+    color: var(--white);
+}
+
+.smartlearn-tagline span {
+    color: var(--gold);
+}
+
+.smartlearn-description {
+    margin-top: 28px;
+
+    color: #f7f4f0;
+
+    font-size: clamp(19px, 2vw, 31px);
+    line-height: 1.35;
+
+    font-weight: 400;
+    max-width: 600px;
+}
+
+/* Homepage action buttons */
+
+.smartlearn-actions {
+    margin-top: 36px;
+
+    display: flex;
+    align-items: center;
+
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.explore-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+
+    background: var(--gold);
+    color: var(--black);
+
+    text-decoration: none;
+
+    padding: 13px 27px;
+    min-height: 52px;
+
+    border-radius: 35px;
+
+    font-size: 17px;
+    font-weight: 800;
+
+    transition: all 0.25s ease;
+}
+
+.explore-button:hover {
+    background: var(--gold-hover);
+    color: var(--black);
+    transform: translateY(-3px);
+}
+
+.demo-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 13px;
+
+    color: var(--white);
+    text-decoration: none;
+
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.demo-button:hover {
+    color: var(--gold);
+}
+
+.play-icon {
+    height: 45px;
+    width: 45px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid var(--white);
+    border-radius: 50%;
+
+    font-size: 19px;
+    padding-left: 3px;
+}
+
+/* =========================================================
+   HOMEPAGE FEATURE STRIP
+========================================================= */
+
+.smartlearn-features {
+    position: absolute;
+
+    left: 5.4%;
+    right: 5.4%;
+    bottom: 7%;
+
+    z-index: 3;
+
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+}
+
+.smartlearn-feature {
+    display: flex;
+    align-items: center;
+
+    gap: 22px;
+
+    min-height: 70px;
+    padding: 0 28px;
+
+    border-right: 1px solid rgba(255, 255, 255, 0.55);
+}
+
+.smartlearn-feature:first-child {
+    padding-left: 0;
+}
+
+.smartlearn-feature:last-child {
+    border-right: none;
+}
+
+.feature-icon {
+    color: var(--gold);
+
+    font-size: 43px;
+    line-height: 1;
+
+    min-width: 48px;
+}
+
+.feature-text {
+    color: var(--white);
+
+    font-size: 20px;
+    line-height: 1.3;
+
+    font-weight: 500;
+}
+
+/* =========================================================
+   HOMEPAGE PLACEHOLDER PAGES
+========================================================= */
+
+.smartlearn-placeholder {
+    min-height: 100vh;
+
+    padding: 80px 8%;
+
+    color: var(--white);
+    background: var(--dark);
+}
+
+.smartlearn-placeholder h1 {
+    color: var(--gold);
+    font-size: 52px;
+}
+
+.smartlearn-placeholder a {
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 18px;
+}
+
+/* =========================================================
+   STREAMLIT SIDEBAR
+========================================================= */
+
+/* Sidebar background */
+
+[data-testid="stSidebar"] {
+    background: var(--dark-sidebar) !important;
+
+    border-right: 1px solid var(--gold-border) !important;
+
+    min-width: 260px !important;
+}
+
+/* Sidebar content */
+
+[data-testid="stSidebar"] > div:first-child {
+    background: var(--dark-sidebar) !important;
+    padding-top: 25px !important;
+}
+
+/* Sidebar text */
+
+[data-testid="stSidebar"] p,
+[data-testid="stSidebar"] label,
+[data-testid="stSidebar"] span {
+    color: #eee7dd;
+}
+
+/* Sidebar brand */
+
+[data-testid="stSidebar"] .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 12px 8px 25px;
+
+    color: var(--white);
+}
+
+[data-testid="stSidebar"] .brand-mark {
+    width: 42px;
+    height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--gold);
+    color: var(--black) !important;
+
+    border-radius: 12px;
+
+    font-size: 23px;
+    font-weight: 800;
+
+    flex-shrink: 0;
+}
+
+[data-testid="stSidebar"] .brand b {
+    display: block;
+
+    color: var(--white);
+    font-size: 20px;
+}
+
+[data-testid="stSidebar"] .brand small {
+    display: block;
+
+    color: var(--muted);
+
+    font-size: 9px;
+    letter-spacing: 1px;
+
+    margin-top: 4px;
+}
+
+/* Workspace heading */
+
+[data-testid="stSidebar"] .side-label {
+    color: var(--gold) !important;
+
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+
+    padding: 10px 8px;
+}
+
+/* Sidebar navigation */
+
+[data-testid="stSidebar"] [data-testid="stRadio"] {
+    padding: 5px 0;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+    color: #e9e1d5 !important;
+
+    font-size: 14px;
+
+    padding: 7px 8px;
+    border-radius: 9px;
+
+    transition: all 0.2s ease;
+}
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label:hover {
+    background: rgba(255, 202, 66, 0.10);
+}
+
+/* Selected navigation item */
+
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+    background: rgba(255, 202, 66, 0.13);
+    color: var(--gold) !important;
+    font-weight: 700;
+}
+
+/* Radio buttons */
+
+[data-testid="stSidebar"] [data-testid="stRadio"] input {
+    accent-color: var(--gold) !important;
+}
+
+/* Student account */
+
+[data-testid="stSidebar"] .sidebar-bottom {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 18px 8px;
+    margin-top: 30px;
+
+    border-top: 1px solid var(--gold-border);
+}
+
+[data-testid="stSidebar"] .avatar {
+    width: 40px;
+    height: 40px;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: var(--gold);
+    color: var(--black) !important;
+
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+[data-testid="stSidebar"] .sidebar-bottom b {
+    display: block;
+
+    color: var(--white);
+    font-size: 13px;
+}
+
+[data-testid="stSidebar"] .sidebar-bottom small {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+/* Sidebar scrollbar */
+
+[data-testid="stSidebar"] ::-webkit-scrollbar {
+    width: 5px;
+}
+
+[data-testid="stSidebar"] ::-webkit-scrollbar-thumb {
+    background: #806125;
+    border-radius: 10px;
+}
+
+/* Sidebar collapse button */
+
+[data-testid="stSidebar"] button {
+    color: var(--gold) !important;
+}
+
+/* =========================================================
+   COMMON PAGE STYLING
+========================================================= */
+
+.eyebrow {
+    color: var(--gold);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.page-title {
+    color: var(--white);
+    font-size: 36px;
+    font-weight: 800;
+}
+
+.page-subtitle {
+    color: var(--muted);
+    font-size: 15px;
+}
+
+/* Common cards */
+
+.catalogue-card,
+.admin-card,
+.admin-panel {
+    color: var(--white);
+}
+
+/* =========================================================
+   STREAMLIT BUTTONS
+========================================================= */
+
+[data-testid="stMain"] button[kind="primary"] {
+    background: var(--gold) !important;
+    color: var(--black) !important;
+
+    border: 1px solid var(--gold) !important;
+    border-radius: 30px !important;
+
+    font-weight: 800 !important;
+}
+
+[data-testid="stMain"] button[kind="primary"]:hover {
+    background: var(--gold-hover) !important;
+    border-color: var(--gold-hover) !important;
+}
+
+[data-testid="stMain"] button[kind="secondary"] {
+    background: transparent !important;
+    color: var(--white) !important;
+
+    border: 1px solid var(--gold-border) !important;
+    border-radius: 30px !important;
+}
+
+[data-testid="stMain"] button[kind="secondary"]:hover {
+    color: var(--gold) !important;
+    border-color: var(--gold) !important;
+}
+
+/* =========================================================
+   STREAMLIT INPUT FIELDS
+========================================================= */
+
+[data-testid="stMain"] input,
+[data-testid="stMain"] textarea {
+    background: #211a14 !important;
+    color: var(--white) !important;
+
+    border: 1px solid rgba(255, 202, 66, 0.35) !important;
+    border-radius: 12px !important;
+}
+
+[data-testid="stMain"] input::placeholder,
+[data-testid="stMain"] textarea::placeholder {
+    color: #a99b88 !important;
+}
+
+[data-testid="stMain"] [data-testid="stSelectbox"] div[data-baseweb="select"] {
+    background: #211a14 !important;
+    color: var(--white) !important;
+    border-radius: 10px !important;
+}
+
+[data-testid="stMain"] [data-testid="stSelectbox"] div {
+    color: var(--white);
+}
+
+/* =========================================================
+   SMARTLEARN LOGIN PAGE
+========================================================= */
+
+/* Login background is loaded by login.py using Base64.
+   Do not set a global image URL here. */
+
+body:has(.login-brand) [data-testid="stMainBlockContainer"] {
+    max-width: 100% !important;
+    padding: 25px 5.2% 20px !important;
+}
+
+/* Login brand */
+
+.login-brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+
+    color: var(--white);
+
+    font-size: 36px;
+    font-weight: 800;
+
+    margin: 0 0 35px 0;
+}
+
+.login-brand span {
+    color: var(--gold);
+}
+
+.login-brand-icon {
+    font-size: 55px;
+}
+
+/* Welcome section */
+
+.login-welcome {
+    min-height: 670px;
+
+    padding-top: 65px;
+
+    position: relative;
+    color: var(--white);
+}
+
+.login-welcome h1 {
+    color: var(--white);
+
+    font-size: clamp(48px, 5.4vw, 82px);
+    font-weight: 800;
+
+    letter-spacing: -2px;
+    line-height: 1.1;
+
+    margin: 0 0 15px;
+}
+
+.login-welcome h1 span,
+.login-subtitle strong {
+    color: var(--gold);
+}
+
+.login-subtitle {
+    font-size: clamp(22px, 2.5vw, 38px);
+    line-height: 1.35;
+
+    color: var(--white);
+    margin: 0;
+}
+
+.login-line {
+    width: 190px;
+    height: 4px;
+
+    background: linear-gradient(90deg, var(--gold), transparent);
+
+    margin: 30px 0 20px;
+}
+
+.login-quote {
+    color: var(--white);
+
+    font-size: 27px;
+    line-height: 1.35;
+
+    font-style: italic;
+    margin: 0;
+}
+
+/* Login features */
+
+.login-features {
+    display: flex;
+    align-items: center;
+
+    gap: 25px;
+    margin-top: 230px;
+}
+
+.login-feature {
+    display: flex;
+    align-items: center;
+
+    gap: 13px;
+    padding-right: 25px;
+
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.login-feature:last-child {
+    border-right: none;
+}
+
+.login-feature span {
+    color: var(--gold);
+
+    font-size: 40px;
+    font-weight: bold;
+}
+
+.login-feature p {
+    color: var(--white);
+
+    font-size: 17px;
+    line-height: 1.25;
+
+    margin: 0;
+}
+
+/* Login card heading */
+
+.login-card-heading {
+    text-align: center;
+    margin: 25px 0 35px;
+}
+
+.login-card-heading h2 {
+    color: var(--white);
+
+    font-size: clamp(27px, 2.8vw, 43px);
+    font-weight: 800;
+
+    margin: 0 0 8px;
+}
+
+.login-card-heading h2 span {
+    color: var(--gold);
+}
+
+.login-card-heading p {
+    color: var(--white);
+    font-size: 20px;
+    margin: 0;
+}
+
+/* Login card */
+
+div[data-testid="stVerticalBlock"]:has(.login-card-heading) {
+    background: rgba(25, 17, 12, 0.55);
+
+    border: 1.5px solid rgba(255, 202, 66, 0.85);
+    border-radius: 30px;
+
+    padding: 25px 38px;
+
+    box-shadow: 0 0 25px rgba(255, 202, 66, 0.12);
+}
+
+/* Login input fields */
+
+[data-testid="stTextInput"] input {
+    min-height: 58px !important;
+
+    border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
+    border-radius: 18px !important;
+
+    background: rgba(20, 15, 12, 0.65) !important;
+    color: var(--white) !important;
+
+    font-size: 18px !important;
+}
+
+[data-testid="stTextInput"] input::placeholder {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+[data-testid="stTextInput"] label,
+[data-testid="stCheckbox"] label {
+    color: var(--white) !important;
+}
+
+/* Remember checkbox */
+
+[data-testid="stCheckbox"] {
+    padding-top: 5px;
+}
+
+[data-testid="stCheckbox"] label p {
+    color: var(--white) !important;
+}
+
+/* Forgot password */
+
+.forgot-link {
+    text-align: right;
+    padding-top: 8px;
+}
+
+.forgot-link a {
+    color: var(--gold);
+
+    font-size: 16px;
+    text-decoration: none;
+}
+
+.forgot-link a:hover {
+    color: var(--gold-hover);
+}
+
+/* Login form submit button */
+
+div[data-testid="stFormSubmitButton"] button {
+    min-height: 58px;
+
+    background: var(--gold) !important;
+    color: var(--black) !important;
+
+    border: none !important;
+    border-radius: 35px !important;
+
+    font-size: 20px !important;
+    font-weight: 800 !important;
+}
+
+div[data-testid="stFormSubmitButton"] button:hover {
+    background: var(--gold-hover) !important;
+}
+
+/* Google login button */
+
+div[data-testid="stButton"] button {
+    min-height: 52px;
+
+    background: transparent !important;
+    color: var(--white) !important;
+
+    border: 1.5px solid var(--white) !important;
+    border-radius: 35px !important;
+
+    font-size: 17px !important;
+}
+
+div[data-testid="stButton"] button:hover {
+    border-color: var(--gold) !important;
+    color: var(--gold) !important;
+}
+
+/* OR divider */
+
+.login-divider {
+    display: flex;
+    align-items: center;
+
+    gap: 15px;
+
+    color: var(--white);
+    font-size: 17px;
+
+    margin: 20px 0;
+}
+
+.login-divider span {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.7);
+    flex: 1;
+}
+
+/* Sign up */
+
+.login-signup {
+    color: var(--white);
+
+    text-align: center;
+    font-size: 16px;
+
+    margin: 20px 0 5px;
+}
+
+.login-signup a {
+    color: var(--gold);
+
+    font-weight: 700;
+    text-decoration: none;
+
+    margin-left: 8px;
+}
+
+.login-signup a:hover {
+    color: var(--gold-hover);
+}
+
+/* Back to home */
+
+.login-back {
+    margin-top: 15px;
+}
+
+.login-back a {
+    color: var(--gold);
+    text-decoration: none;
+}
+
+.login-back a:hover {
+    color: var(--gold-hover);
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN - TABLETS
+========================================================= */
+
+@media (max-width: 1100px) {
+
+    .smartlearn-navbar {
+        flex-wrap: wrap;
+    }
+
+    .smartlearn-navlinks {
+        gap: 18px;
+        flex-wrap: wrap;
+    }
+
+    .smartlearn-content {
+        width: 70%;
+    }
+
+    .smartlearn-features {
+        left: 4%;
+        right: 4%;
+    }
+
+    .smartlearn-feature {
+        padding: 0 14px;
+        gap: 12px;
+    }
+
+    .feature-text {
+        font-size: 16px;
+    }
+}
+
+/* =========================================================
+   RESPONSIVE DESIGN - MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+    .smartlearn-hero {
+        min-height: 100vh;
+        height: auto;
+
+        background-position: center, 62% center;
+    }
+
+    .smartlearn-navbar {
+        padding: 18px 5%;
+        gap: 15px;
+    }
+
+    .smartlearn-brand {
+        font-size: 27px;
+    }
+
+    .brand-icon {
+        width: 52px;
+        height: 45px;
+    }
+
+    .smartlearn-navlinks {
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .smartlearn-navlinks a {
+        font-size: 14px;
+    }
+
+    .smartlearn-navlinks a.active {
+        padding: 8px 15px;
+    }
+
+    .smartlearn-navlinks .login-link {
+        padding: 10px 18px;
+    }
+
+    .smartlearn-content {
+        width: 100%;
+        padding: 75px 6% 280px;
+    }
+
+    .smartlearn-title {
+        font-size: clamp(55px, 13vw, 85px);
+        letter-spacing: -3px;
+    }
+
+    .smartlearn-tagline {
+        font-size: clamp(34px, 8vw, 52px);
+        letter-spacing: -1.5px;
+    }
+
+    .smartlearn-description {
+        font-size: 19px;
+    }
+
+    .smartlearn-actions {
+        gap: 20px;
+    }
+
+    .explore-button {
+        padding: 16px 25px;
+        min-height: 58px;
+        font-size: 17px;
+    }
+
+    .smartlearn-features {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px 8px;
+        bottom: 25px;
+    }
+
+    .smartlearn-feature {
+        border-right: none;
+        padding: 5px;
+        min-height: 50px;
+    }
+
+    .feature-icon {
+        font-size: 30px;
+        min-width: 35px;
+    }
+
+    .feature-text {
+        font-size: 14px;
+    }
+
+    /* Login mobile layout */
+
+    .login-welcome {
+        min-height: auto;
+        padding-top: 20px;
+    }
+
+    .login-features {
+        margin-top: 45px;
+        flex-wrap: wrap;
+    }
+
+    div[data-testid="stVerticalBlock"]:has(.login-card-heading) {
+        padding: 20px;
+    }
+
+    .login-brand {
+        font-size: 28px;
+    }
+
+    .login-brand-icon {
+        font-size: 42px;
+    }
+}
+
+/* =========================================================
+   END OF SMARTLEARN CSS
+========================================================= */
