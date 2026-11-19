@@ -11,7 +11,11 @@ def setup_database():
     courses_collection = db["courses"]
 
     # Find the CSV file in the Downloads folder
-    csv_path = Path(r"C:\Users\barik\Downloads\udemy_courses.csv")
+    csv_path = (
+    Path(__file__).resolve().parent
+    / "dataset"
+    / "udemy_courses.csv"
+    )
 
     if not csv_path.exists():
         raise FileNotFoundError(

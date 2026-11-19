@@ -25,7 +25,7 @@ def register_user(name, email, password):
         "password_hash": password_hash,
         "interests": [],
         "skills": [],
-        "skill_level": "Beginner"
+        "skill_level": "Beginner Level"
     }
 
     try:
