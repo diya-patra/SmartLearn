@@ -135,11 +135,8 @@ def render_page(page):
         render()
 
     elif page == "Login":
-        st.title("Student Login")
-        st.info(
-            "Login and registration will be connected "
-            "in the next integration step."
-        )
+        from ui.login import render
+        render()
 
     else:
         st.title(page)

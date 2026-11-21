@@ -1,311 +1,208 @@
 
 import streamlit as st
-from pathlib import Path
-from textwrap import dedent
-import base64
+from auth import register_user, login_user
 
 
-# ==========================================
-# PROJECT PATHS
-# ==========================================
+# --------------------------------------------------
+# SESSION MANAGEMENT
+# --------------------------------------------------
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+def save_user_session(user):
 
-CSS_PATH = BASE_DIR / "assets" / "style.css"
+    st.session_state["logged_in"] = True
+    st.session_state["user"] = user
+    st.session_state["user_email"] = user["email"]
+    st.session_state["student_name"] = user.get("name", "Student")
 
-BACKGROUND_PATH = BASE_DIR / "assets" / "login_background.png"
+    # Make the saved profile available to the recommendation page
+    st.session_state["student_profile"] = {
+        "interests": user.get("interests", []),
+        "skills": user.get("skills", []),
+        "skill_level": user.get("skill_level", "Beginner Level")
+    }
 
 
-# ==========================================
-# LOAD CSS
-# ==========================================
+# --------------------------------------------------
+# LOGOUT
+# --------------------------------------------------
 
-def load_login_css():
+def logout_user():
 
-    if CSS_PATH.exists():
+    keys = [
+        "logged_in",
+        "user",
+        "user_email",
+        "student_name",
+        "student_profile",
+        "smartlearn_recommendations"
+    ]
 
-        css = CSS_PATH.read_text(encoding="utf-8")
+    for key in keys:
+        st.session_state.pop(key, None)
 
-        st.markdown(
-            f"<style>{css}</style>",
-            unsafe_allow_html=True
+    st.success("You have been logged out successfully.")
+    st.rerun()
+
+
+# --------------------------------------------------
+# LOGIN FORM
+# --------------------------------------------------
+
+def login_form():
+
+    with st.form("login_form"):
+
+        st.subheader("Welcome Back!")
+
+        email = st.text_input(
+            "Email Address",
+            placeholder="Enter your email"
         )
 
-    else:
-        st.error("CSS file not found: assets/style.css")
-
-
-# ==========================================
-# LOAD LOGIN BACKGROUND IMAGE
-# ==========================================
-
-def load_login_background():
-
-    if not BACKGROUND_PATH.exists():
-
-        st.error(
-            f"Background image not found: {BACKGROUND_PATH}"
+        password = st.text_input(
+            "Password",
+            type="password",
+            placeholder="Enter your password"
         )
-        return
 
-    image_data = base64.b64encode(
-        BACKGROUND_PATH.read_bytes()
-    ).decode("utf-8")
+        submitted = st.form_submit_button(
+            "Login",
+            use_container_width=True
+        )
 
-    st.markdown(
-        f"""
-        <style>
+        if submitted:
 
-        [data-testid="stAppViewContainer"] {{
-            background-image:
-                linear-gradient(
-                    90deg,
-                    rgba(8, 5, 3, 0.88),
-                    rgba(20, 10, 5, 0.58),
-                    rgba(8, 5, 3, 0.78)
-                ),
-                url("data:image/png;base64,{image_data}") !important;
+            if not email.strip() or not password:
+                st.warning("Please enter both email and password.")
 
-            background-size: cover !important;
-            background-position: center center !important;
-            background-repeat: no-repeat !important;
-            background-attachment: fixed !important;
+            else:
+                try:
+                    user = login_user(email, password)
 
-            min-height: 100vh;
-        }}
+                    if user:
+                        save_user_session(user)
+                        st.success("Login successful!")
+                        st.rerun()
 
-        [data-testid="stHeader"] {{
-            background: transparent !important;
-        }}
+                    else:
+                        st.error("Invalid email or password.")
 
-        [data-testid="stMain"] {{
-            background: transparent !important;
-        }}
-
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+                except Exception as error:
+                    st.error(
+                        f"Unable to log in. Please check your database connection. Details: {error}"
+                    )
 
 
-# ==========================================
-# LOGIN PAGE
-# ==========================================
+# --------------------------------------------------
+# REGISTRATION FORM
+# --------------------------------------------------
+
+def registration_form():
+
+    with st.form("registration_form"):
+
+        st.subheader("Create Your Account")
+
+        name = st.text_input(
+            "Full Name",
+            placeholder="Enter your full name"
+        )
+
+        email = st.text_input(
+            "Email Address",
+            placeholder="Enter your email"
+        )
+
+        password = st.text_input(
+            "Password",
+            type="password",
+            placeholder="Create a password"
+        )
+
+        confirm_password = st.text_input(
+            "Confirm Password",
+            type="password",
+            placeholder="Re-enter your password"
+        )
+
+        submitted = st.form_submit_button(
+            "Create Account",
+            use_container_width=True
+        )
+
+        if submitted:
+
+            if not name.strip() or not email.strip() or not password:
+                st.warning("Please complete all fields.")
+
+            elif "@" not in email or "." not in email:
+                st.warning("Please enter a valid email address.")
+
+            elif password != confirm_password:
+                st.error("Passwords do not match.")
+
+            else:
+                try:
+                    registered = register_user(
+                        name.strip(),
+                        email.strip(),
+                        password
+                    )
+
+                    if registered:
+                        st.success(
+                            "Account created successfully! "
+                            "Please go to the Login tab to sign in."
+                        )
+
+                    else:
+                        st.error(
+                            "Registration failed. This email may already "
+                            "be registered."
+                        )
+
+                except Exception as error:
+                    st.error(
+                        f"Unable to create account. "
+                        f"Please check your database connection. Details: {error}"
+                    )
+
+
+# --------------------------------------------------
+# MAIN LOGIN PAGE
+# --------------------------------------------------
 
 def render():
 
-    load_login_css()
-    load_login_background()
+    st.title("SmartLearn")
+    st.subheader("Your Learning Journey Starts Here")
 
-    # --------------------------------------
-    # SMARTLEARN BRAND
-    # --------------------------------------
-
-    st.html(dedent("""
-        <div class="login-brand">
-            <div class="login-brand-icon">🎓</div>
-            <div>Smart<span>Learn</span></div>
-        </div>
-    """))
-
-    # --------------------------------------
-    # TWO-COLUMN LAYOUT
-    # --------------------------------------
-
-    left, right = st.columns(
-        [1.25, 1],
-        gap="large"
+    st.write(
+        "Sign in to access your personalised learning experience, "
+        "discover courses and receive intelligent recommendations."
     )
 
-    # ======================================
-    # LEFT SIDE - WELCOME SECTION
-    # ======================================
+    # If a student is already logged in
+    if st.session_state.get("logged_in", False):
 
-    with left:
+        name = st.session_state.get("student_name", "Student")
 
-        st.html(dedent("""
-            <div class="login-welcome">
+        st.success(f"Welcome, {name}!")
 
-                <h1>
-                    Welcome <span>Back!</span>
-                </h1>
+        st.write("You are currently logged in.")
 
-                <p class="login-subtitle">
-                    Continue your learning journey<br>
-                    with <strong>SmartLearn.</strong>
-                </p>
+        if st.button("Logout", use_container_width=True):
+            logout_user()
 
-                <div class="login-line"></div>
+        return
 
-                <p class="login-quote">
-                    “Learn today,<br>
-                    Lead tomorrow.”
-                </p>
-
-                <div class="login-features">
-
-                    <div class="login-feature">
-                        <span>▤</span>
-                        <p>Expert-Led<br>Courses</p>
-                    </div>
-
-                    <div class="login-feature">
-                        <span>▷</span>
-                        <p>Interactive<br>Learning</p>
-                    </div>
-
-                    <div class="login-feature">
-                        <span>▥</span>
-                        <p>Track Your<br>Progress</p>
-                    </div>
-
-                </div>
-
-            </div>
-        """))
-
-    # ======================================
-    # RIGHT SIDE - LOGIN CARD
-    # ======================================
-
-    with right:
-
-        st.html(dedent("""
-            <div class="login-card-heading">
-                <h2>
-                    Login to <span>SmartLearn</span>
-                </h2>
-
-                <p>Your knowledge. Our mission.</p>
-            </div>
-        """))
-
-        # ----------------------------------
-        # LOGIN FORM
-        # ----------------------------------
-
-        with st.form("smartlearn_login_form"):
-
-            email = st.text_input(
-                "Email Address",
-                placeholder="✉  Email Address",
-                label_visibility="collapsed"
-            )
-
-            password = st.text_input(
-                "Password",
-                placeholder="🔒  Password",
-                type="password",
-                label_visibility="collapsed"
-            )
-
-            remember_col, forgot_col = st.columns(
-                [1, 1]
-            )
-
-            with remember_col:
-
-                remember = st.checkbox(
-                    "Remember Me"
-                )
-
-            with forgot_col:
-
-                st.html("""
-                    <div class="forgot-link">
-                        <a href="?page=ForgotPassword">
-                            Forgot Password?
-                        </a>
-                    </div>
-                """)
-
-            submitted = st.form_submit_button(
-                "Login  →",
-                use_container_width=True
-            )
-
-            # ----------------------------------
-            # FORM VALIDATION
-            # ----------------------------------
-
-            if submitted:
-
-                if not email.strip() or not password:
-
-                    st.error(
-                        "Please enter your email address "
-                        "and password."
-                    )
-
-                else:
-
-                    st.info(
-                        "Login form submitted. Authentication "
-                        "will be connected when the backend "
-                        "is integrated."
-                    )
-
-        # ----------------------------------
-        # OR DIVIDER
-        # ----------------------------------
-
-        st.html("""
-            <div class="login-divider">
-                <span></span>
-                OR
-                <span></span>
-            </div>
-        """)
-
-        # ----------------------------------
-        # GOOGLE LOGIN
-        # ----------------------------------
-
-        if st.button(
-            "🌐  Continue with Google",
-            key="google_login",
-            use_container_width=True
-        ):
-
-            st.info(
-                "Google authentication will be integrated later."
-            )
-
-        # ----------------------------------
-        # SIGN UP
-        # ----------------------------------
-
-        st.html("""
-            <div class="login-signup">
-                Don't have an account?
-                <a href="?page=SignUp">Sign Up</a>
-            </div>
-        """)
-
-    # ======================================
-    # BACK TO HOME
-    # ======================================
-
-    st.html("""
-        <div class="login-back">
-            <a href="?page=Home">
-                ← Back to Home
-            </a>
-        </div>
-    """)
-
-
-# ==========================================
-# RUN LOGIN PAGE DIRECTLY
-# ==========================================
-
-if __name__ == "__main__":
-
-    st.set_page_config(
-        page_title="Login | SmartLearn",
-        page_icon="🎓",
-        layout="wide"
+    # Login and registration tabs
+    login_tab, register_tab = st.tabs(
+        ["Login", "Create Account"]
     )
 
-    render()
+    with login_tab:
+        login_form()
 
+    with register_tab:
+        registration_form()
