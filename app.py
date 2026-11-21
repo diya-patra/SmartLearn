@@ -136,11 +136,16 @@ def render_page(page):
 
     elif page == "Login":
         st.title("Student Login")
-        st.info("Login and registration will be connected in the next integration step.")
+        st.info(
+            "Login and registration will be connected "
+            "in the next integration step."
+        )
 
     else:
         st.title(page)
-        st.info(f"The {page} page is currently under development.")
+        st.info(
+            f"The {page} page is currently under development."
+        )
 
         if st.button("Back to Home"):
             st.query_params["page"] = "Home"
