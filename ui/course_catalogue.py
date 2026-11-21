@@ -5,6 +5,11 @@ from textwrap import dedent
 from html import escape
 import base64
 
+from course_operations import (
+    get_all_courses,
+    enroll_student,
+    get_student_enrollments
+)
 
 # =========================================================
 # 1. PROJECT PATHS
@@ -457,75 +462,57 @@ def load_catalogue_page_styles():
 # 4. COURSE DATA
 # =========================================================
 
-courses = [
+# =========================================================
+# 4. COURSE DATA FROM MONGODB
+# =========================================================
 
-    {
-        "title": "Python Programming",
-        "category": "Programming",
-        "level": "Beginner",
-        "icon": "🐍",
-        "description": (
-            "Learn Python fundamentals, variables, loops, "
-            "functions and build your programming foundation."
-        )
-    },
+def get_course_display_data(course):
 
-    {
-        "title": "Machine Learning",
-        "category": "Data Science",
-        "level": "Intermediate",
-        "icon": "🤖",
-        "description": (
-            "Discover machine learning algorithms, model training "
-            "and real-world AI applications."
-        )
-    },
+    subject = course.get("subject", "General")
+    level = course.get("level", "Not specified")
 
-    {
-        "title": "Web Development",
-        "category": "Web Development",
-        "level": "Beginner",
-        "icon": "💻",
-        "description": (
-            "Master HTML, CSS and JavaScript to design "
-            "and develop modern websites."
-        )
-    },
-
-    {
-        "title": "Data Science",
-        "category": "Data Science",
-        "level": "Advanced",
-        "icon": "📊",
-        "description": (
-            "Explore data analysis, visualization, statistics "
-            "and predictive modelling."
-        )
-    },
-
-    {
-        "title": "Business Management",
-        "category": "Business",
-        "level": "Beginner",
-        "icon": "📈",
-        "description": (
-            "Understand business strategy, leadership "
-            "and essential management principles."
-        )
-    },
-
-    {
-        "title": "Advanced Python",
-        "category": "Programming",
-        "level": "Advanced",
-        "icon": "⚙️",
-        "description": (
-            "Strengthen your Python skills with object-oriented "
-            "programming and advanced concepts."
-        )
+    icons = {
+        "Web Development": "💻",
+        "Business Finance": "📈",
+        "Musical Instruments": "🎵",
+        "Graphic Design": "🎨"
     }
 
-]
+    title = course.get("course_title", "Untitled Course")
+
+    lectures = course.get("num_lectures")
+    duration = course.get("content_duration")
+
+    description_parts = []
+
+    if lectures is not None:
+        description_parts.append(f"{lectures} lectures")
+
+    if duration is not None:
+        description_parts.append(f"{duration} hours of content")
+
+    is_paid = course.get("is_paid")
+
+    if is_paid is not None:
+        paid_value = str(is_paid).strip().lower()
+        if paid_value in ("true", "1", "yes"):
+            description_parts.append("Paid course")
+        else:
+            description_parts.append("Free course")
+
+    description = " · ".join(description_parts)
+
+    if not description:
+        description = "Explore this course and expand your knowledge."
+
+    return {
+        "course_id": course.get("course_id"),
+        "title": title,
+        "category": subject,
+        "level": level,
+        "icon": icons.get(subject, "📚"),
+        "description": description
+    }
 
 
 # =========================================================
@@ -564,33 +551,79 @@ def create_course_card(course):
 # =========================================================
 # 6. MAIN RENDER FUNCTION
 # =========================================================
+@st.cache_data(ttl=300)
+def load_catalogue_courses():
+    return get_all_courses()
+# =========================================================
+# 6. MAIN RENDER FUNCTION
+# =========================================================
 
 def render():
 
     load_catalogue_css()
     load_catalogue_page_styles()
 
-    # LARGE OUTER PANEL
     with st.container(key="catalogue_page"):
-
-        # =============================================
-        # PAGE HEADER
-        # =============================================
 
         st.html("""
             <div class="catalogue-heading">
                 Explore Courses 📚
             </div>
-
             <div class="catalogue-subtitle">
                 Discover courses, develop new skills, and build your future.
             </div>
         """)
 
-        # =============================================
-        # SMALL INNER FILTER PANEL
-        # =============================================
+        # Display enrolment messages after reruns
+        notice = st.session_state.pop("catalogue_notice", None)
 
+        if notice:
+            notice_type, notice_message = notice
+            if notice_type == "success":
+                st.success(notice_message)
+            elif notice_type == "info":
+                st.info(notice_message)
+            else:
+                st.error(notice_message)
+
+        # Load cached MongoDB courses
+        try:
+            database_courses = load_catalogue_courses()
+        except Exception as error:
+            st.error("Unable to load courses from MongoDB.")
+            st.caption(str(error))
+            return
+
+        if not database_courses:
+            st.warning("No courses are available.")
+            return
+
+        courses = [
+            get_course_display_data(course)
+            for course in database_courses
+        ]
+
+        # Student login and enrolments
+        logged_in = st.session_state.get("logged_in", False)
+        email = st.session_state.get("user_email")
+        enrolled_ids = set()
+
+        if logged_in and email:
+            try:
+                student_enrollments = get_student_enrollments(email)
+                enrolled_ids = {
+                    str(item.get("course_id"))
+                    for item in student_enrollments
+                }
+            except Exception as error:
+                st.error("Unable to retrieve enrolments.")
+                st.caption(str(error))
+                return
+
+        if not logged_in:
+            st.info("Please log in to enrol in courses.")
+
+        # Search and filters
         with st.container(key="catalogue_filters"):
 
             search_col, category_col, level_col = st.columns(
@@ -598,8 +631,15 @@ def render():
                 gap="medium"
             )
 
-            with search_col:
+            categories = sorted({
+                course["category"] for course in courses
+            })
 
+            levels = sorted({
+                course["level"] for course in courses
+            })
+
+            with search_col:
                 search = st.text_input(
                     "Search Courses",
                     placeholder="Search by course name...",
@@ -607,47 +647,28 @@ def render():
                 )
 
             with category_col:
-
                 category = st.selectbox(
                     "Category",
-                    [
-                        "All Categories",
-                        "Programming",
-                        "Data Science",
-                        "Web Development",
-                        "Business"
-                    ],
+                    ["All Categories"] + categories,
                     key="catalogue_category"
                 )
 
             with level_col:
-
                 level = st.selectbox(
                     "Difficulty",
-                    [
-                        "All Levels",
-                        "Beginner",
-                        "Intermediate",
-                        "Advanced"
-                    ],
+                    ["All Levels"] + levels,
                     key="catalogue_level"
                 )
 
-        st.markdown("---")
-
-        # =============================================
-        # FILTER COURSES
-        # =============================================
+        # Filter automatically whenever a widget changes
+        search_text = search.strip().lower()
 
         filtered_courses = []
-
-        search_text = search.strip().lower()
 
         for course in courses:
 
             matches_search = (
                 search_text in course["title"].lower()
-                or search_text in course["description"].lower()
                 or search_text in course["category"].lower()
             )
 
@@ -661,16 +682,10 @@ def render():
                 or course["level"] == level
             )
 
-            if (
-                matches_search
-                and matches_category
-                and matches_level
-            ):
+            if matches_search and matches_category and matches_level:
                 filtered_courses.append(course)
 
-        # =============================================
-        # COURSE COUNT
-        # =============================================
+        st.markdown("---")
 
         st.html(f"""
             <div class="catalogue-section-title">
@@ -681,52 +696,129 @@ def render():
             </div>
         """)
 
-        # =============================================
-        # DISPLAY COURSE CARDS
-        # =============================================
+        # Pagination: display only 12 courses at a time
+        page_size = 12
 
-        if not filtered_courses:
+        total_courses = len(filtered_courses)
+        total_pages = max(1, (total_courses + page_size - 1) // page_size)
 
-            st.info(
-                "No courses found. Try changing your search or filters."
-            )
+        current_page = st.session_state.get("catalogue_page_number", 1)
+        current_page = min(current_page, total_pages)
+        current_page = max(current_page, 1)
+
+        st.session_state["catalogue_page_number"] = current_page
+
+        start_index = (current_page - 1) * page_size
+        end_index = start_index + page_size
+
+        page_courses = filtered_courses[start_index:end_index]
+
+        if not page_courses:
+            st.info("No courses found. Try changing your search or filters.")
 
         else:
-
             columns = st.columns(3, gap="medium")
 
-            for index, course in enumerate(filtered_courses):
+            for index, course in enumerate(page_courses):
 
                 with columns[index % 3]:
 
                     st.html(create_course_card(course))
 
-                    st.button(
-                        "Explore Course →",
-                        key=f"explore_course_{index}",
-                        use_container_width=True,
-                        disabled=True
-                    )
+                    course_id = course["course_id"]
+                    course_id_key = str(course_id)
 
-        # =============================================
-        # AI RECOMMENDATION SECTION
-        # =============================================
+                    if course_id_key in enrolled_ids:
 
+                        st.button(
+                            "Already Enrolled ✓",
+                            key=f"enrolled_{course_id_key}",
+                            use_container_width=True,
+                            disabled=True
+                        )
+
+                    elif not logged_in:
+
+                        st.button(
+                            "Login to Enrol",
+                            key=f"login_{course_id_key}",
+                            use_container_width=True,
+                            disabled=True
+                        )
+
+                    else:
+
+                        if st.button(
+                            "Enrol Now →",
+                            key=f"enrol_{course_id_key}",
+                            use_container_width=True
+                        ):
+
+                            try:
+                                enrolled = enroll_student(email, course_id)
+
+                                if enrolled:
+                                    st.session_state["catalogue_notice"] = (
+                                        "success",
+                                        f"Successfully enrolled in {course['title']}!"
+                                    )
+                                else:
+                                    st.session_state["catalogue_notice"] = (
+                                        "info",
+                                        "You are already enrolled in this course."
+                                    )
+
+                            except Exception as error:
+                                st.session_state["catalogue_notice"] = (
+                                    "error",
+                                    f"Enrolment failed: {error}"
+                                )
+
+                            st.rerun()
+
+        # Pagination controls
+        if total_courses > 0:
+
+            st.divider()
+
+            prev_col, page_col, next_col = st.columns([1, 2, 1])
+
+            with prev_col:
+                if st.button(
+                    "← Previous",
+                    disabled=current_page == 1,
+                    use_container_width=True
+                ):
+                    st.session_state["catalogue_page_number"] -= 1
+                    st.rerun()
+
+            with page_col:
+                st.markdown(
+                    f"<div style='text-align:center; padding-top:8px;'>"
+                    f"Page {current_page} of {total_pages}"
+                    f"</div>",
+                    unsafe_allow_html=True
+                )
+
+            with next_col:
+                if st.button(
+                    "Next →",
+                    disabled=current_page >= total_pages,
+                    use_container_width=True
+                ):
+                    st.session_state["catalogue_page_number"] += 1
+                    st.rerun()
+
+        # Recommendation section
         st.markdown("---")
 
         st.html("""
             <div class="catalogue-recommendation">
-
-                <h3>
-                    Need help choosing a course? 🎯
-                </h3>
-
+                <h3>Need help choosing a course? 🎯</h3>
                 <p>
                     Discover courses that match your interests, skills
-                    and learning level with SmartLearn's AI recommendation
-                    system.
+                    and learning level with SmartLearn's recommendation system.
                 </p>
-
             </div>
         """)
 
@@ -737,6 +829,5 @@ def render():
             key="view_recommendations",
             type="primary"
         ):
-
             st.query_params["page"] = "Recommendations"
             st.rerun()

@@ -1195,3 +1195,178 @@ div[data-testid="stButton"] button:hover {
 /* =========================================================
    END OF SMARTLEARN CSS
 ========================================================= */
+
+/* =========================================================
+   GLOBAL STREAMLIT READABILITY & UI POLISH
+   Applies across SmartLearn pages
+========================================================= */
+
+/* General widget labels */
+[data-testid="stMain"] [data-testid="stWidgetLabel"],
+[data-testid="stMain"] [data-testid="stWidgetLabel"] p,
+[data-testid="stMain"] label,
+[data-testid="stMain"] label p {
+    color: #f5eee4 !important;
+    font-weight: 600 !important;
+}
+
+/* Help text and descriptions */
+[data-testid="stMain"] [data-testid="stCaptionContainer"],
+[data-testid="stMain"] [data-testid="stMarkdownContainer"] small,
+[data-testid="stMain"] .stTooltipIcon {
+    color: #c9bda9 !important;
+}
+
+/* Text inputs, number inputs and text areas */
+[data-testid="stMain"] input,
+[data-testid="stMain"] textarea,
+[data-testid="stMain"] [data-baseweb="input"] input {
+    background-color: #211a14 !important;
+    color: #ffffff !important;
+    caret-color: #ffca42 !important;
+    border-color: rgba(255, 202, 66, 0.5) !important;
+}
+
+[data-testid="stMain"] input:focus,
+[data-testid="stMain"] textarea:focus,
+[data-testid="stMain"] [data-baseweb="select"]:focus-within {
+    border-color: #ffca42 !important;
+    box-shadow: 0 0 0 1px #ffca42 !important;
+}
+
+[data-testid="stMain"] input::placeholder,
+[data-testid="stMain"] textarea::placeholder {
+    color: #b9aa96 !important;
+    opacity: 1 !important;
+}
+
+/* Select boxes and multiselect fields */
+[data-testid="stMain"] [data-baseweb="select"] {
+    background-color: #211a14 !important;
+    border-color: rgba(255, 202, 66, 0.5) !important;
+}
+
+[data-testid="stMain"] [data-baseweb="select"] *,
+[data-testid="stMain"] [data-baseweb="select"] input {
+    color: #ffffff !important;
+}
+
+/* Dropdown menu and options */
+[data-baseweb="popover"],
+[data-baseweb="menu"],
+[data-baseweb="select"] ul,
+[role="listbox"] {
+    background-color: #17120e !important;
+    border: 1px solid rgba(255, 202, 66, 0.35) !important;
+}
+
+[data-baseweb="popover"] *,
+[data-baseweb="menu"] *,
+[role="listbox"] * {
+    color: #f5eee4 !important;
+}
+
+[role="option"]:hover,
+[role="option"][aria-selected="true"] {
+    background-color: #382a18 !important;
+    color: #ffda75 !important;
+}
+
+/* Multiselect selected tags */
+[data-testid="stMultiSelect"] [data-baseweb="tag"] {
+    background-color: #493719 !important;
+    border: 1px solid #ffca42 !important;
+}
+
+[data-testid="stMultiSelect"] [data-baseweb="tag"] * {
+    color: #ffffff !important;
+}
+
+/* Radio buttons and checkboxes */
+[data-testid="stMain"] [data-testid="stRadio"] label,
+[data-testid="stMain"] [data-testid="stCheckbox"] label {
+    color: #f5eee4 !important;
+}
+
+[data-testid="stMain"] input[type="radio"],
+[data-testid="stMain"] input[type="checkbox"] {
+    accent-color: #ffca42 !important;
+}
+
+/* Success, information, warning and error messages */
+[data-testid="stAlert"] {
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 202, 66, 0.3) !important;
+    padding: 12px 16px !important;
+}
+
+[data-testid="stAlert"] p,
+[data-testid="stAlert"] div,
+[data-testid="stAlert"] span {
+    color: #ffffff !important;
+    font-weight: 500 !important;
+}
+
+/* Success messages */
+[data-testid="stAlert"][kind="success"] {
+    background-color: #153326 !important;
+    border-color: #34865b !important;
+}
+
+/* Information messages */
+[data-testid="stAlert"][kind="info"] {
+    background-color: #172c3d !important;
+    border-color: #397ca5 !important;
+}
+
+/* Warning messages */
+[data-testid="stAlert"][kind="warning"] {
+    background-color: #3b2c12 !important;
+    border-color: #b88727 !important;
+}
+
+/* Error messages */
+[data-testid="stAlert"][kind="error"] {
+    background-color: #3b1c1c !important;
+    border-color: #a94a4a !important;
+}
+
+/* Streamlit buttons */
+[data-testid="stMain"] button {
+    transition: all 0.2s ease-in-out !important;
+}
+
+[data-testid="stMain"] button:focus {
+    outline: 2px solid #ffca42 !important;
+    outline-offset: 2px !important;
+}
+
+/* Disabled controls */
+[data-testid="stMain"] button:disabled,
+[data-testid="stMain"] input:disabled {
+    opacity: 0.6 !important;
+    cursor: not-allowed !important;
+}
+
+/* Dividers */
+[data-testid="stMain"] hr {
+    border-color: rgba(255, 202, 66, 0.2) !important;
+}
+
+/* Tables */
+[data-testid="stMain"] [data-testid="stTable"],
+[data-testid="stMain"] [data-testid="stDataFrame"] {
+    color: #f5eee4 !important;
+}
+
+/* Improve readability on smaller screens */
+@media (max-width: 700px) {
+    [data-testid="stMain"] [data-testid="stWidgetLabel"],
+    [data-testid="stMain"] label {
+        font-size: 14px !important;
+    }
+
+    [data-testid="stAlert"] {
+        padding: 10px 12px !important;
+    }
+}

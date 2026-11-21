@@ -1,6 +1,45 @@
 
 import streamlit as st
+
 from auth import register_user, login_user
+from user_operations import get_user_profile, update_user_profile
+
+
+# --------------------------------------------------
+# PROFILE OPTIONS
+# --------------------------------------------------
+
+INTEREST_OPTIONS = [
+    "Web Development",
+    "Business Finance",
+    "Musical Instruments",
+    "Graphic Design"
+]
+
+SKILL_OPTIONS = [
+    "HTML",
+    "CSS",
+    "JavaScript",
+    "Java",
+    "Python",
+    "PHP",
+    "C",
+    "C++",
+    "SQL",
+    "MongoDB",
+    "MySQL",
+    "React",
+    "Node.js",
+    "Machine Learning",
+    "Data Analysis",
+    "Git and GitHub"
+]
+
+LEVEL_OPTIONS = [
+    "Beginner Level",
+    "Intermediate Level",
+    "Expert Level"
+]
 
 
 # --------------------------------------------------
@@ -9,17 +48,30 @@ from auth import register_user, login_user
 
 def save_user_session(user):
 
-    st.session_state["logged_in"] = True
-    st.session_state["user"] = user
-    st.session_state["user_email"] = user["email"]
-    st.session_state["student_name"] = user.get("name", "Student")
+    email = user["email"]
 
-    # Make the saved profile available to the recommendation page
+    # Fetch the latest profile from MongoDB
+    profile = get_user_profile(email)
+
+    if profile is None:
+        profile = user
+
+    st.session_state["logged_in"] = True
+    st.session_state["user"] = profile
+    st.session_state["user_email"] = email
+    st.session_state["student_name"] = profile.get(
+        "name", "Student"
+    )
+
     st.session_state["student_profile"] = {
-        "interests": user.get("interests", []),
-        "skills": user.get("skills", []),
-        "skill_level": user.get("skill_level", "Beginner Level")
+        "interests": profile.get("interests", []),
+        "skills": profile.get("skills", []),
+        "skill_level": profile.get(
+            "skill_level", "Beginner Level"
+        )
     }
+
+    st.session_state["profile_skipped"] = False
 
 
 # --------------------------------------------------
@@ -34,7 +86,8 @@ def logout_user():
         "user_email",
         "student_name",
         "student_profile",
-        "smartlearn_recommendations"
+        "smartlearn_recommendations",
+        "profile_skipped"
     ]
 
     for key in keys:
@@ -42,6 +95,167 @@ def logout_user():
 
     st.success("You have been logged out successfully.")
     st.rerun()
+
+
+# --------------------------------------------------
+# LEARNING PROFILE FORM
+# --------------------------------------------------
+
+def learning_profile_form():
+
+    email = st.session_state.get("user_email")
+
+    saved_profile = st.session_state.get(
+        "student_profile", {}
+    )
+
+    with st.form("learning_profile_form"):
+
+        st.subheader("Complete Your Learning Profile")
+
+        st.write(
+            "Tell us about your learning interests and existing "
+            "skills so SmartLearn can recommend relevant courses."
+        )
+
+        interests = st.multiselect(
+            "What subjects interest you?",
+            options=INTEREST_OPTIONS,
+            default=[
+                item for item in saved_profile.get("interests", [])
+                if item in INTEREST_OPTIONS
+            ],
+            help="You can select more than one subject."
+        )
+
+        skills = st.multiselect(
+            "Which skills do you already have?",
+            options=SKILL_OPTIONS,
+            default=[
+                item for item in saved_profile.get("skills", [])
+                if item in SKILL_OPTIONS
+            ],
+            help="Select the skills you already know."
+        )
+
+        skill_level = st.selectbox(
+            "What is your current skill level?",
+            options=LEVEL_OPTIONS,
+            index=(
+                LEVEL_OPTIONS.index(saved_profile["skill_level"])
+                if saved_profile.get("skill_level") in LEVEL_OPTIONS
+                else 0
+            )
+        )
+
+        submitted = st.form_submit_button(
+            "Save Learning Profile",
+            use_container_width=True
+        )
+
+        if submitted:
+
+            if not interests:
+                st.warning(
+                    "Please select at least one learning interest."
+                )
+
+            elif not skills:
+                st.warning(
+                    "Please select at least one existing skill."
+                )
+
+            else:
+
+                profile_data = {
+                    "interests": interests,
+                    "skills": skills,
+                    "skill_level": skill_level
+                }
+
+                try:
+                    updated = update_user_profile(
+                        email,
+                        profile_data
+                    )
+
+                    # Verify the saved profile, including when
+                    # the submitted values were already unchanged.
+                    saved = get_user_profile(email)
+
+                    if (
+                        saved
+                        and saved.get("interests") == interests
+                        and saved.get("skills") == skills
+                        and saved.get("skill_level") == skill_level
+                    ):
+
+                        st.session_state["student_profile"] = profile_data
+                        st.session_state["user"] = saved
+                        st.session_state["profile_skipped"] = False
+
+                        st.success(
+                            "Your learning profile has been saved!"
+                        )
+                        st.rerun()
+
+                    else:
+                        st.error(
+                            "Unable to save your learning profile. "
+                            "Please try again."
+                        )
+
+                except Exception as error:
+                    st.error("Unable to update your learning profile.")
+                    st.exception(error)
+
+
+# --------------------------------------------------
+# PROFILE SECTION
+# --------------------------------------------------
+
+def render_learning_profile():
+
+    profile = st.session_state.get(
+        "student_profile", {}
+    )
+
+    interests = profile.get("interests", [])
+    skills = profile.get("skills", [])
+
+    is_complete = bool(interests and skills)
+
+    if not is_complete:
+
+        if not st.session_state.get("profile_skipped", False):
+
+            st.warning(
+                "Your learning profile is incomplete. "
+                "Complete it to receive personalised recommendations."
+            )
+
+            learning_profile_form()
+
+            if st.button("Skip for now"):
+                st.session_state["profile_skipped"] = True
+                st.rerun()
+
+        else:
+
+            st.info(
+                "You haven't completed your learning profile yet. "
+                "Your recommendations may not be personalised."
+            )
+
+            with st.expander("Complete your learning profile"):
+                learning_profile_form()
+
+    else:
+
+        st.success("Your learning profile is complete.")
+
+        with st.expander("View or edit your learning profile"):
+            learning_profile_form()
 
 
 # --------------------------------------------------
@@ -73,7 +287,9 @@ def login_form():
         if submitted:
 
             if not email.strip() or not password:
-                st.warning("Please enter both email and password.")
+                st.warning(
+                    "Please enter both email and password."
+                )
 
             else:
                 try:
@@ -87,9 +303,10 @@ def login_form():
                     else:
                         st.error("Invalid email or password.")
 
-                except Exception as error:
+                except Exception:
                     st.error(
-                        f"Unable to log in. Please check your database connection. Details: {error}"
+                        "Unable to log in. Please check your "
+                        "database connection and try again."
                     )
 
 
@@ -152,19 +369,19 @@ def registration_form():
                     if registered:
                         st.success(
                             "Account created successfully! "
-                            "Please go to the Login tab to sign in."
+                            "Please log in to complete your learning profile."
                         )
 
                     else:
                         st.error(
-                            "Registration failed. This email may already "
-                            "be registered."
+                            "Registration failed. This email may "
+                            "already be registered."
                         )
 
-                except Exception as error:
+                except Exception:
                     st.error(
-                        f"Unable to create account. "
-                        f"Please check your database connection. Details: {error}"
+                        "Unable to create your account. "
+                        "Please check your database connection."
                     )
 
 
@@ -178,25 +395,29 @@ def render():
     st.subheader("Your Learning Journey Starts Here")
 
     st.write(
-        "Sign in to access your personalised learning experience, "
+        "Sign in to access your learning dashboard, "
         "discover courses and receive intelligent recommendations."
     )
 
-    # If a student is already logged in
+    # Already logged in
     if st.session_state.get("logged_in", False):
 
-        name = st.session_state.get("student_name", "Student")
+        name = st.session_state.get(
+            "student_name", "Student"
+        )
 
         st.success(f"Welcome, {name}!")
 
-        st.write("You are currently logged in.")
+        render_learning_profile()
+
+        st.divider()
 
         if st.button("Logout", use_container_width=True):
             logout_user()
 
         return
 
-    # Login and registration tabs
+    # Login and registration
     login_tab, register_tab = st.tabs(
         ["Login", "Create Account"]
     )

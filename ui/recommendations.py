@@ -5,7 +5,10 @@ from pathlib import Path
 import base64
 import mimetypes
 
-
+from course_operations import (
+    enroll_student,
+    get_student_enrollments
+)
 # =====================================================
 # 1. PROJECT PATHS
 # =====================================================
@@ -584,7 +587,7 @@ def get_saved_profile():
 # 4. RECOMMENDATION CARD
 # =====================================================
 
-def display_course(course, index):
+def display_course(course, index, student_email, enrolled_ids):
 
     title = escape(
         str(course.get("course_title", "Untitled Course"))
@@ -628,7 +631,6 @@ def display_course(course, index):
         ">
 
             <div style="flex:1;">
-
                 <h3>{title}</h3>
 
                 <div class="recommend-subject">
@@ -638,11 +640,9 @@ def display_course(course, index):
                 <span class="recommend-level">
                     {level}
                 </span>
-
             </div>
 
             <div>
-
                 <div class="recommend-score">
                     {final_score}%
                 </div>
@@ -650,7 +650,6 @@ def display_course(course, index):
                 <div class="recommend-score-label">
                     Match score
                 </div>
-
             </div>
 
         </div>
@@ -690,26 +689,103 @@ def display_course(course, index):
 
     st.html(card_html)
 
-    # ---------------------------------------------
-    # Course URL
-    # ---------------------------------------------
+    # Get the original course ID from the recommendation
+    course_id = course.get("course_id")
 
+    # Convert NumPy scalar values to regular Python values if needed
+    if hasattr(course_id, "item"):
+        course_id = course_id.item()
+
+    if course_id is None:
+        st.warning("Course ID is unavailable for this recommendation.")
+        return
+
+    course_key = str(course_id)
+
+    # Get the original Udemy URL
     course_url = (
         course.get("course_url")
         or course.get("url")
         or course.get("link")
     )
 
-    if (
-        isinstance(course_url, str)
-        and course_url.startswith(("https://", "http://"))
-    ):
+    col1, col2 = st.columns(2)
 
-        st.link_button(
-            "Explore Course ↗",
-            course_url,
-            use_container_width=True
-        )
+    with col1:
+
+        if course_key in enrolled_ids:
+
+            st.button(
+                "✓ Already Enrolled",
+                key=f"recommend_enrolled_{course_key}_{index}",
+                use_container_width=True,
+                disabled=True
+            )
+
+        elif not student_email:
+
+            st.button(
+                "Login to Enrol",
+                key=f"recommend_login_{course_key}_{index}",
+                use_container_width=True,
+                disabled=True
+            )
+
+        else:
+
+            if st.button(
+                "Enrol Now",
+                key=f"recommend_enrol_{course_key}_{index}",
+                use_container_width=True,
+                type="primary"
+            ):
+
+                try:
+                    enrolled = enroll_student(
+                        student_email,
+                        course_id
+                    )
+
+                    if enrolled:
+                        st.session_state["recommendation_notice"] = (
+                            "success",
+                            f"You have successfully enrolled in {course.get('course_title', 'this course')}!"
+                        )
+                    else:
+                        st.session_state["recommendation_notice"] = (
+                            "info",
+                            "You are already enrolled in this course."
+                        )
+
+                except Exception as error:
+                    st.session_state["recommendation_notice"] = (
+                        "error",
+                        f"Unable to enrol in this course: {error}"
+                    )
+
+                st.rerun()
+
+    with col2:
+
+        if (
+            isinstance(course_url, str)
+            and course_url.startswith(("https://", "http://"))
+        ):
+
+            st.link_button(
+                "View on Udemy ↗",
+                course_url,
+                use_container_width=True
+            )
+
+        else:
+
+            st.button(
+                "Udemy Link Unavailable",
+                key=f"recommend_no_url_{course_key}_{index}",
+                use_container_width=True,
+                disabled=True
+            )
 
 
 # =====================================================
@@ -952,6 +1028,45 @@ def render():
                     "model's similarity scores."
                 )
 
+                # Get the currently logged-in student's email
+                student_email = st.session_state.get("user_email")
+
+                # Get existing enrolments once instead of querying for every card
+                enrolled_ids = set()
+
+                if student_email:
+                    try:
+                        existing_enrollments = get_student_enrollments(
+                            student_email
+                        )
+
+                        enrolled_ids = {
+                            str(item.get("course_id"))
+                            for item in existing_enrollments
+                        }
+
+                    except Exception as error:
+                        st.error(f"Unable to load your enrolments: {error}")
+
+                # Display enrolment feedback after rerun
+                notice = st.session_state.pop(
+                    "recommendation_notice",
+                    None
+                )
+
+                if notice:
+                    notice_type, notice_message = notice
+
+                    if notice_type == "success":
+                        st.success(notice_message)
+
+                    elif notice_type == "info":
+                        st.info(notice_message)
+
+                    else:
+                        st.error(notice_message)
+
+                # Display recommendation cards
                 for index, (_, course) in enumerate(
                     recommendations.iterrows(),
                     start=1
@@ -959,7 +1074,9 @@ def render():
 
                     display_course(
                         course.to_dict(),
-                        index
+                        index,
+                        student_email,
+                        enrolled_ids
                     )
 
                 st.markdown("---")
